@@ -1,0 +1,68 @@
+// https://github.com/wpilibsuite/GradleRIO
+plugins {
+    id "java"
+    id "eclipse"
+    id "idea"
+    id "com.diffplug.gradle.spotless" version "3.26.1"
+    id "edu.wpi.first.GradleRIO" version "2021.1.1-beta-4"
+    id "jacoco"
+}
+
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
+
+// Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
+// Also defines JUnit 5.
+dependencies {
+    compile wpi.deps.wpilib()
+    nativeZip wpi.deps.wpilibJni(wpi.platforms.roborio)
+    nativeDesktopZip wpi.deps.wpilibJni(wpi.platforms.desktop)
+
+    compile wpi.deps.vendor.java()
+    nativeZip wpi.deps.vendor.jni(wpi.platforms.roborio)
+    nativeDesktopZip wpi.deps.vendor.jni(wpi.platforms.desktop)
+
+    testImplementation 'org.knowm.xchart:xchart:3.6.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ["src"]
+        }
+    }
+
+    test {
+        java {
+            srcDirs = ["test"]
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+    reports {
+        xml.enabled true
+    }
+}
+
+spotless {
+    java {
+        googleJavaFormat()
+        paddedCell()
+    }
+}
+
+// Maven central needed for JUnit
+repositories {
+    mavenCentral()
+}
